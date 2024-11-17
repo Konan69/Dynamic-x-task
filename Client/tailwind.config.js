@@ -16,6 +16,7 @@ export default {
         baseform: "#1010104D",
         bgcolor: "#040404",
         authborder: "#2C2626",
+        baseborder: "#75F94C1A",
         btn: "#75F94C",
       },
     },

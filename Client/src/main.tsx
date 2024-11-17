@@ -17,7 +17,7 @@ createRoot(document.getElementById("root")!).render(
         ...toastConfig,
         className: "toastClass",
         duration: 2500,
-        icon: "null",
+        icon: null,
       }}
       position="top-center"
       reverseOrder={false}
