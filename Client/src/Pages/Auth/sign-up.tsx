@@ -16,10 +16,9 @@ import CardWrapper from "./card-wrapper";
 
 export const Signup = () => {
   const { registerUserMutation, isPending } = useRegisterUser();
+
   const onSubmit = (values: z.infer<typeof SignupSchema>) => {
     const { confirmPassword, ...registrationData } = values;
-    console.log(registrationData);
-
     registerUserMutation(registrationData);
   };
 
