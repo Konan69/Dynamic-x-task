@@ -1,7 +1,7 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
-const base = import.meta.env.BASE_URL;
+const base = import.meta.env.VITE_BASE_URL;
 
 export const getToken = () => {
   const token = Cookies.get("ttk");
@@ -35,9 +35,21 @@ export const getRequest = async (path: string) => {
     const response = await axios.get(url, config);
     return response.data;
   } catch (error) {
-    return error;
+    throw error;
   }
 };
+
+export const postRequest = async (path: string, data: object) => {
+  const url = `${base}/${path}`;
+  console.log(base);
+  try {
+    const response = await axios.post(url, data, config);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const getAuthRequest = async (path: string, alt?: boolean) => {
   const url = `${base}/${path}`;
   const AuthConfig = {
@@ -54,7 +66,7 @@ export const getAuthRequest = async (path: string, alt?: boolean) => {
     }
     return response.data;
   } catch (error) {
-    return error;
+    throw error;
   }
 };
 
@@ -71,6 +83,6 @@ export const postAuthRequest = async (path: string, data: object) => {
     const response = await axios.post(url, data, AuthConfig);
     return response.data;
   } catch (error) {
-    return error;
+    throw error;
   }
 };

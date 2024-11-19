@@ -10,12 +10,17 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import useRegisterUser from "./useRegisterUser";
 import { Input } from "@/components/ui/input";
 import CardWrapper from "./card-wrapper";
 
 export const Signup = () => {
+  const { registerUserMutation, isPending } = useRegisterUser();
   const onSubmit = (values: z.infer<typeof SignupSchema>) => {
-    console.log(values);
+    const { confirmPassword, ...registrationData } = values;
+    console.log(registrationData);
+
+    registerUserMutation(registrationData);
   };
 
   const signupForm = useForm<z.infer<typeof SignupSchema>>({
@@ -110,6 +115,7 @@ export const Signup = () => {
             />
             <Button
               className="bg-btn text-black hover:bg-[#52ab37]"
+              disabled={isPending}
               type="submit"
             >
               Submit
