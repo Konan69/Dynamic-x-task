@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 
 const useRegisterUser = () => {
   const registerUser = async (data: User) => {
-    const url = "/register";
+    const url = "register";
     const response = await postRequest(url, data);
     return response.data;
   };

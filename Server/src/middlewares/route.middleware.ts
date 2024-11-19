@@ -8,10 +8,14 @@ import { clientInspector } from "req-ip-scope";
 export const routeMiddleware = async (
   req: Request,
   _res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   if (req.path !== "/health") {
-    const data = validateIp(req.ip) ? await clientInspector(req) : "Invalid IP";
+    const data = Env.isDevelopment
+      ? "Development mode - IP check bypassed"
+      : validateIp(req.ip)
+        ? await clientInspector(req)
+        : "Invalid IP";
     Logger.group({
       title: "New Request",
       descriptions: [
