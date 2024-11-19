@@ -1,9 +1,9 @@
 import { DataSource } from "typeorm";
 import { SnakeNamingStrategy } from "typeorm-naming-strategies";
-import { UserEntity } from "../entities";
+import { TaskEntity, UserEntity } from "../entities";
 import { Env } from "../env";
 
-export const AppDataSouce = new DataSource({
+export const AppDataSource = new DataSource({
   type: "mysql",
   database: Env.dbName,
   host: Env.host,
@@ -11,8 +11,8 @@ export const AppDataSouce = new DataSource({
   password: Env.password,
   port: Env.dbPort,
   logging: false,
-  synchronize: false,
-  entities: [UserEntity],
+  synchronize: true,
+  entities: [UserEntity, TaskEntity],
   entitySkipConstructor: true,
   namingStrategy: new SnakeNamingStrategy(),
 });

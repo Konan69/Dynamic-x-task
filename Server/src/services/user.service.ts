@@ -1,9 +1,9 @@
 import { UserEntity } from "../entities";
-import { AppDataSouce } from "../db";
+import { AppDataSource } from "../db";
 
 export const createUser = async (data) => {
   const { username, email, password } = data;
-  const userRepository = AppDataSouce.getRepository(UserEntity);
+  const userRepository = AppDataSource.getRepository(UserEntity);
   const existingUser = await userRepository.findOne({
     where: { email },
   });
@@ -14,7 +14,7 @@ export const createUser = async (data) => {
 };
 
 export const getOneUser = async (data) => {
-  const userRepository = AppDataSouce.getRepository(UserEntity);
+  const userRepository = AppDataSource.getRepository(UserEntity);
   const findUser = await userRepository.findOne({ where: { ...data } });
   if (!findUser) return null;
   return findUser;

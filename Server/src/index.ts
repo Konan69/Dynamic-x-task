@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { dbCreate, AppDataSouce } from "./db";
+import { dbCreate, AppDataSource } from "./db";
 import { appRouter } from "./routes";
 import { errorHandlerMiddleware, routeMiddleware } from "./middlewares";
 import { Env } from "./env";
@@ -9,7 +9,7 @@ import { clientUse } from "req-ip-scope";
 const setupServer = async () => {
   await dbCreate();
 
-  await AppDataSouce.initialize();
+  await AppDataSource.initialize();
 
   const app = express();
 

@@ -1,4 +1,4 @@
-import { UserEntity } from "../entities";
+import { UserEntity } from "../../entities/user.entity";
 
 declare global {
   namespace Express {
@@ -7,7 +7,3 @@ declare global {
     }
   }
 }
-
-export type PayloadType = {
-  id: string;
-};
