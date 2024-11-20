@@ -3,6 +3,19 @@ import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 const base = import.meta.env.VITE_BASE_URL;
 
+
+export const isAuthenticated = (): boolean => {
+  const token = Cookies.get("authToken");
+  if (!token) return false;
+  try {
+    const decodedToken = jwtDecode<{ exp: number }>(token);
+    return decodedToken.exp > Date.now() / 1000;
+  } catch (error) {
+    return false;
+  }
+};
+
+
 export const getToken = () => {
   const token = Cookies.get("authToken");
   if (!token) {
@@ -12,13 +25,13 @@ export const getToken = () => {
   try {
     const decodedToken = jwtDecode(token);
     if (decodedToken.exp && decodedToken.exp < Date.now() / 1000) {
-      window.location.href = "/";
+      window.location.href = "/login";
       return null;
     }
     return token;
   } catch (error) {
-    Cookies.remove("ttk");
-    window.location.href = "/";
+    Cookies.remove("authToken");
+    window.location.href = "/login";
     return null;
   }
 };
