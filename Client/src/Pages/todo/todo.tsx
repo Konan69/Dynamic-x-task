@@ -1,26 +1,28 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CreateTask } from "@/components/Modals";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { OptionsMenu } from "@/components/Dropdown";
+import { Task } from "@/types";
+import { useGetTasks, useUpdateTask} from "./useTodo";
 
-interface ColumnProps {
+interface statusProps {
   title: string;
-  cards: Card[];
-  column: string;
-  setCards: React.Dispatch<React.SetStateAction<Card[]>>;
+  cards: Task[];
+  status: string;
+  setCards: React.Dispatch<React.SetStateAction<Task[]>>;
 }
 interface DropProps {
   beforeId: string;
-  column: string;
+  status: string;
 }
 
 interface CardProps {
   title: string;
-  id: string;
-  column: string;
-  handleDrag: (e: React.DragEvent<HTMLDivElement>, card: Card) => void;
-  setCards: React.Dispatch<React.SetStateAction<Card[]>>;
+  uuid: string;
+  status: string;
+  handleDrag: (e: React.DragEvent<HTMLDivElement>, card: Task) => void;
+  setCards: React.Dispatch<React.SetStateAction<Task[]>>;
 }
 
 interface DragEvent {
@@ -32,11 +34,7 @@ interface IndicatorType {
   element: HTMLElement;
 }
 
-interface Card {
-  id: string;
-  title: string;
-  column: string;
-}
+
 
 export const Todo = () => {
   return (
@@ -64,28 +62,41 @@ export const Todo = () => {
 };
 
 const Board = () => {
-  const [cards, setCards] = useState<Card[]>(DEFAULT_CARDS);
+  const { data: tasks, isLoading } = useGetTasks();
+  const [cards, setCards] = useState<Task[]>([]);
+
+  useEffect(() => {
+    if (tasks) {
+      setCards(tasks);
+    }
+  }, [tasks]);
+
+  if (isLoading) {
+    return <div className="p-12">Loading...</div>;
+  }
+
   return (
     <div className="flex h-full w-full gap-3 overflow-scroll p-12">
-      <Column title="To Do" cards={cards} column="todo" setCards={setCards} />
-
-      <Column
+      <Status title="To Do" cards={cards} status="Todo" setCards={setCards} />
+      <Status
         title="In Progress"
         cards={cards}
-        column="inProgress"
+        status="In-Progress"
         setCards={setCards}
       />
-
-      <Column title="Done" cards={cards} column="done" setCards={setCards} />
+      <Status title="Done" cards={cards} status="Done" setCards={setCards} />
     </div>
   );
 };
 
-const Column = ({ title, cards, column, setCards }: ColumnProps) => {
+const Status = ({ title, cards, status, setCards }: statusProps) => {
+  const { updateTaskMutation } = useUpdateTask();
   const [active, setActive] = useState(false);
 
-  const handleDrag = (e: React.DragEvent<HTMLDivElement>, card: Card) => {
-    e.dataTransfer.setData("cardId", card.id);
+  const handleDrag = (e: React.DragEvent<HTMLDivElement>, card: Task) => {
+    console.log("card", card);
+    e.dataTransfer.setData("cardId", card.uuid);
+   console.log("cardId", e.dataTransfer.getData("cardId"));
   };
 
   const highlight = (e: DragEvent) => {
@@ -121,7 +132,7 @@ const Column = ({ title, cards, column, setCards }: ColumnProps) => {
   };
 
   const getIndicators = (): HTMLElement[] => {
-    return Array.from(document.querySelectorAll(`[data-column="${column}"]`));
+    return Array.from(document.querySelectorAll(`[data-status="${status}"]`));
   };
 
   const clearHighlights = (elements?: HTMLElement[]) => {
@@ -145,15 +156,21 @@ const Column = ({ title, cards, column, setCards }: ColumnProps) => {
   const handleDragEnd = (e: any) => {
     setActive(false);
     clearHighlights();
+    
     const cardId = e.dataTransfer.getData("cardId");
+    
+    updateTaskMutation({
+      uuid: cardId,
+      status: status,
+    });
 
     if (filteredCards.length === 0) {
       let copy = [...cards];
-      let cardToTransfer = copy.find((card) => card.id === cardId);
+      let cardToTransfer = copy.find((card) => card.uuid === cardId);
       if (!cardToTransfer) return;
 
-      cardToTransfer = { ...cardToTransfer, column };
-      copy = copy.filter((card) => card.id !== cardId);
+      cardToTransfer = { ...cardToTransfer, status };
+      copy = copy.filter((card) => card.uuid !== cardId);
       copy.push(cardToTransfer);
       setCards(copy);
       return;
@@ -165,18 +182,18 @@ const Column = ({ title, cards, column, setCards }: ColumnProps) => {
 
     if (beforeId !== cardId) {
       let copy = [...cards];
-      let cardToTransfer = copy.find((card) => card.id === cardId);
+      let cardToTransfer = copy.find((card) => card.uuid === cardId);
       if (!cardToTransfer) return;
 
-      cardToTransfer = { ...cardToTransfer, column };
-      copy = copy.filter((card) => card.id !== cardId);
+      cardToTransfer = { ...cardToTransfer, status };
+      copy = copy.filter((card) => card.uuid !== cardId);
 
       const moveToBack = beforeId === "-1";
 
       if (moveToBack) {
         copy.push(cardToTransfer);
       } else {
-        const beforeIndex = copy.findIndex((card) => card.id === beforeId);
+        const beforeIndex = copy.findIndex((card) => card.uuid === beforeId);
         copy.splice(beforeIndex + 1, 0, cardToTransfer);
       }
 
@@ -184,7 +201,7 @@ const Column = ({ title, cards, column, setCards }: ColumnProps) => {
     }
   };
 
-  const filteredCards = cards.filter((card: Card) => card.column === column);
+  const filteredCards = cards.filter((card: Task  ) => card.status === status);
 
   return (
     <div className="w-56 shrink-0 bg-baseform p-4 rounded-xl">
@@ -203,11 +220,11 @@ const Column = ({ title, cards, column, setCards }: ColumnProps) => {
         }`}
       >
         {filteredCards.length === 0 ? (
-          <DropIndicator beforeId="-1" column={column} />
+          <DropIndicator beforeId="-1" status={status} />
         ) : (
           filteredCards.map((card) => (
             <Card
-              key={card.id}
+              key={card.uuid}
               {...card}
               handleDrag={handleDrag}
               setCards={setCards}
@@ -219,7 +236,8 @@ const Column = ({ title, cards, column, setCards }: ColumnProps) => {
   );
 };
 
-const Card = ({ title, id, column, handleDrag, setCards }: CardProps) => {
+const Card = ({ title, uuid, status, handleDrag, setCards }: CardProps) => {
+  const { updateTaskMutation } = useUpdateTask();
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
 
@@ -228,11 +246,10 @@ const Card = ({ title, id, column, handleDrag, setCards }: CardProps) => {
   };
 
   const handleSave = () => {
-    setCards((prevCards: Card[]) =>
-      prevCards.map((card) =>
-        card.id === id ? { ...card, title: editedTitle } : card,
-      ),
-    );
+    updateTaskMutation({
+      uuid: uuid,
+      title: editedTitle,
+    });
     setIsEditing(false);
   };
 
@@ -243,12 +260,12 @@ const Card = ({ title, id, column, handleDrag, setCards }: CardProps) => {
 
   return (
     <>
-      <DropIndicator beforeId={id} column={column} />
+      <DropIndicator beforeId={uuid} status={status} />
       <motion.div
         layout
-        layoutId={id}
+        layoutId={uuid}
         draggable={!isEditing}
-        onDragStart={(e: any) => handleDrag(e, { id, title, column })}
+        onDragStart={(e:any) => handleDrag(e, { uuid, title, status })}
         className="cursor-grab p-3 rounded border border-baseborder bg-baseform/30 active:cursor-grabbing"
       >
         <div className="flex items-center justify-between">
@@ -287,50 +304,17 @@ const Card = ({ title, id, column, handleDrag, setCards }: CardProps) => {
           )}
         </div>
       </motion.div>
-      <DropIndicator beforeId="-1" column={column} />
+      <DropIndicator beforeId="-1" status={status} />
     </>
   );
 };
 
-const DropIndicator = ({ beforeId, column }: DropProps) => {
+const DropIndicator = ({ beforeId, status }: DropProps) => {
   return (
     <div
-      data-before-id={beforeId}
-      data-column={column}
+      data-before-uuid={beforeId}
+      data-status={status}
       className=" h-[0.5px] bg-btn/50 opacity-0"
     ></div>
   );
 };
-
-const DEFAULT_CARDS: Card[] = [
-  // TODO
-  { title: "Look into render bug in dashboard", id: "1", column: "todo" },
-  { title: "SOX compliance checklist", id: "2", column: "todo" },
-  {
-    title: "Research DB options for new microservice",
-    id: "3",
-    column: "todo",
-  },
-
-  {
-    title: "Update user authentication flow",
-    id: "6",
-    column: "inProgress",
-  },
-  {
-    title: "Implement new API endpoints",
-    id: "7",
-    column: "inProgress",
-  },
-
-  {
-    title: "Refactor context providers to use Zustand",
-    id: "4",
-    column: "done",
-  },
-  {
-    title: "Set up DD dashboards for Lambda listener",
-    id: "5",
-    column: "done",
-  },
-];

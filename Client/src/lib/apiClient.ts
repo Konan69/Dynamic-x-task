@@ -4,7 +4,7 @@ import { jwtDecode } from "jwt-decode";
 const base = import.meta.env.VITE_BASE_URL;
 
 export const getToken = () => {
-  const token = Cookies.get("ttk");
+  const token = Cookies.get("authToken");
   if (!token) {
     window.location.href = "/login";
     return null;
@@ -81,6 +81,23 @@ export const postAuthRequest = async (path: string, data: object) => {
   };
   try {
     const response = await axios.post(url, data, AuthConfig);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const patchAuthRequest = async (path: string, data: object) => {
+	const url = `${base}/${path}`;
+	const AuthConfig = {
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${getToken()}`,
+		},
+		credentials: "same-origin",
+	};
+	try {
+    const response = await axios.patch(url, data, AuthConfig);
     return response.data;
   } catch (error) {
     throw error;

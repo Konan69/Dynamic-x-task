@@ -12,13 +12,13 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import { useCreateTask } from "@/Pages/todo/useTodo";
 
 interface StatusOption {
   value: string;
@@ -26,24 +26,37 @@ interface StatusOption {
 }
 
 const STATUS_OPTIONS: StatusOption[] = [
-  { value: "todo", label: "Todo" },
-  { value: "inProgress", label: "In Progress" },
-  { value: "done", label: "Done" },
+  { value: "Todo", label: "Todo" },
+  { value: "In-Progress", label: "In-Progress" },
+  { value: "Done", label: "Done" },
 ] as const;
 
 export const CreateTask = () => {
   const [status, setStatus] = useState<string>("Todo");
   const [title, setTitle] = useState<string>("");
+  const [open, setOpen] = useState(false);
+  const { mutate } = useCreateTask();
 
   const selectedStatus = STATUS_OPTIONS.find((s) => s.value === status);
+  const isFormValid = title.trim() !== "" && status !== "";
 
   const handleSubmit = () => {
-    // TODO: Implement task creation
-    console.log({ title, status });
+    if (!isFormValid) return;
+    
+    mutate(
+      { title, status },
+      {
+        onSuccess: () => {
+          setOpen(false);
+          setTitle("");
+          setStatus("Todo");
+        }
+      }
+    );
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="bg-[#75F94C] text-black hover:bg-[#75F94C]/90">
           Create Task
@@ -80,7 +93,6 @@ export const CreateTask = () => {
               </SelectTrigger>
               <SelectContent className="text-white bg-baseform">
                 <SelectGroup>
-                  <SelectLabel>Status</SelectLabel>
                   {STATUS_OPTIONS.map((status) => (
                     <SelectItem key={status.value} value={status.value}>
                       {status.label}
@@ -96,6 +108,8 @@ export const CreateTask = () => {
             className="bg-btn text-black"
             onClick={handleSubmit}
             type="submit"
+            disabled={!isFormValid}
+            style={{ opacity: isFormValid ? 1 : 0.5, cursor: isFormValid ? 'pointer' : 'not-allowed' }}
           >
             Create
           </Button>

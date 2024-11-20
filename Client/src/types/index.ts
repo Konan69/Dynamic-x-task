@@ -3,3 +3,9 @@ export interface User {
   password: string;
   email: string;
 }
+
+export interface Task {
+  uuid: string;
+  title: string;
+  status: string;
+}

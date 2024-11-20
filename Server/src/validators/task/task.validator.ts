@@ -10,8 +10,8 @@ export const createTaskValidator = () => {
 export const updateTaskValidator = () => {
   return [
     body("taskId").notEmpty().withMessage("taskId is required."),
-    body("title").optional().notEmpty().withMessage("title is required."),
-    body("status").optional().notEmpty().withMessage("status is required."),
+    body("title").optional(),
+    body("status").optional(),
     body().custom((value) => {
       if (!value.title && !value.status) {
         throw new Error("At least one of title or status must be provided");
