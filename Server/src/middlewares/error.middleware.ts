@@ -12,15 +12,19 @@ export const errorHandlerMiddleware = (
 
   if (error instanceof CustomError) {
     if(error instanceof ArgumentValidationError) {
-      res.status(error.errorCode).json({
+      return res.status(error.errorCode).json({
         message: error.message,
         messages: error.messages
-      })
+      });
     }
-    else res.status(error.errorCode).json({
+    return res.status(error.errorCode).json({
       message: error.message,
     });
   }
 
-  return;
+  // Handle unexpected errors
+  return res.status(500).json({
+    message: 'Internal server error',
+    error: error instanceof Error ? error.message : 'Unknown error'
+  });
 };
