@@ -33,7 +33,7 @@ export const Signup = () => {
   });
 
   return (
-    <>
+    <div className="w-full max-w-[90%] sm:max-w-[400px] mx-auto">
       <CardWrapper
         title="Create account"
         backLabel="Already have an account? Login"
@@ -42,7 +42,7 @@ export const Signup = () => {
         <Form {...signupForm}>
           <form
             onSubmit={signupForm.handleSubmit(onSubmit)}
-            className="space-y-4 w-full"
+            className="space-y-4 w-full px-4 sm:px-0"
           >
             <FormField
               control={signupForm.control}
@@ -113,7 +113,7 @@ export const Signup = () => {
               )}
             />
             <Button
-              className="bg-btn text-black hover:bg-[#52ab37]"
+              className="w-full bg-btn text-black hover:bg-[#52ab37]"
               disabled={isPending}
               type="submit"
             >
@@ -122,6 +122,6 @@ export const Signup = () => {
           </form>
         </Form>
       </CardWrapper>
-    </>
+    </div>
   );
 };

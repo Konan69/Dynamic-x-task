@@ -31,63 +31,65 @@ export const Login = () => {
 
   return (
     <HeaderWrapper
-      title={`Stay on top of your
-schedule with Runam`}
+      title={`Stay on top of your schedule with Runam`}
+      className="pt-8 sm:pt-16"
     >
-      <CardWrapper
-        title="Login"
-        backLabel="Don't have an account? Sign up"
-        backHref="/"
-      >
-        <Form {...loginForm}>
-          <form
-            onSubmit={loginForm.handleSubmit(onSubmit)}
-            className="space-y-4 w-full"
-          >
-            <FormField
-              control={loginForm.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      className="border-authborder bg-black text-white"
-                      placeholder="Email Address"
-                      {...field}
-                      type="email"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={loginForm.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      className="border-authborder bg-black text-white"
-                      placeholder="Password"
-                      {...field}
-                      type="password"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button
-              disabled={isPending}
-              className="bg-btn text-black hover:bg-[#52ab37]"
-              type="submit"
+      <div className="w-full max-w-[90%] sm:max-w-[400px] mx-auto">
+        <CardWrapper
+          title="Login"
+          backLabel="Don't have an account? Sign up"
+          backHref="/"
+        >
+          <Form {...loginForm}>
+            <form
+              onSubmit={loginForm.handleSubmit(onSubmit)}
+              className="space-y-4 w-full px-4 sm:px-0"
             >
-              Login
-            </Button>
-          </form>
-        </Form>
-      </CardWrapper>
+              <FormField
+                control={loginForm.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        className="border-authborder bg-black text-white"
+                        placeholder="Email Address"
+                        {...field}
+                        type="email"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={loginForm.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        className="border-authborder bg-black text-white"
+                        placeholder="Password"
+                        {...field}
+                        type="password"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button
+                disabled={isPending}
+                className="w-full bg-btn text-black hover:bg-[#52ab37]"
+                type="submit"
+              >
+                Login
+              </Button>
+            </form>
+          </Form>
+        </CardWrapper>
+      </div>
     </HeaderWrapper>
   );
 };

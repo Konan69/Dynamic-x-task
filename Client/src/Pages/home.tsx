@@ -5,7 +5,7 @@ export const Home = () => {
   return (
     <HeaderWrapper
       title={`Stay on top of your
-schedule with Runam`}
+schedule with Ruman`}
     >
       <Signup />
     </HeaderWrapper>
