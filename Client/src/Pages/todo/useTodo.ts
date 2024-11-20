@@ -1,4 +1,4 @@
-import { getAuthRequest, patchAuthRequest, postAuthRequest } from "../../lib/apiClient";
+import { deleteAuthRequest, getAuthRequest, patchAuthRequest, postAuthRequest } from "../../lib/apiClient";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Task } from "@/types";
 import toast from "react-hot-toast";
@@ -26,7 +26,7 @@ const useCreateTask = () => {
       toast.success("Task created successfully");
     },
     onError: (error: any) => {
-      console.log(error);
+
       toast.error("Failed to create task");
     },
   });
@@ -54,4 +54,22 @@ const useUpdateTask = () => {
   return { updateTaskMutation };
 };
 
-export { useGetTasks, useCreateTask, useUpdateTask };
+const useDeleteTask = () => {
+  const queryClient = useQueryClient();
+  const {mutate: deleteTaskMutation} = useMutation({
+    mutationFn: async (taskId: string) => {
+      const isDeleted = await deleteAuthRequest(`tasks/${taskId}`);
+      return isDeleted;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      toast.success("Task deleted successfully");
+    },
+    onError: () => {
+      toast.error("Failed to delete task");
+    },
+  });
+  return { deleteTaskMutation };
+};
+
+export { useGetTasks, useCreateTask, useUpdateTask, useDeleteTask };

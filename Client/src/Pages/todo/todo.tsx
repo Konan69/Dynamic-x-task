@@ -1,10 +1,9 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CreateTask } from "@/components/Modals";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { OptionsMenu } from "@/components/Dropdown";
 import { Task } from "@/types";
-import { useGetTasks, useUpdateTask} from "./useTodo";
+import { useDeleteTask, useGetTasks, useUpdateTask} from "./useTodo";
 
 interface statusProps {
   title: string;
@@ -39,16 +38,6 @@ interface IndicatorType {
 export const Todo = () => {
   return (
     <div className="w-full h-full flex flex-col">
-      <header className="flex justify-between px-[20px] py-6 items-center border-b border-baseborder">
-        <div className="flex-1" />
-        <div className="flex items-center gap-4">
-          <span className="font-medium text-lg text-white">Konan</span>
-          <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" />
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
-        </div>
-      </header>
 
       <div className="p-6 flex flex-col gap-6">
         <div className="flex justify-end">
@@ -94,9 +83,7 @@ const Status = ({ title, cards, status, setCards }: statusProps) => {
   const [active, setActive] = useState(false);
 
   const handleDrag = (e: React.DragEvent<HTMLDivElement>, card: Task) => {
-    console.log("card", card);
     e.dataTransfer.setData("cardId", card.uuid);
-   console.log("cardId", e.dataTransfer.getData("cardId"));
   };
 
   const highlight = (e: DragEvent) => {
@@ -236,14 +223,17 @@ const Status = ({ title, cards, status, setCards }: statusProps) => {
   );
 };
 
-const Card = ({ title, uuid, status, handleDrag, setCards }: CardProps) => {
+const Card = ({ title, uuid, status, handleDrag }: CardProps) => {
   const { updateTaskMutation } = useUpdateTask();
+  const { deleteTaskMutation } = useDeleteTask();
+
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
 
   const handleEdit = () => {
     setIsEditing(true);
   };
+
 
   const handleSave = () => {
     updateTaskMutation({
@@ -263,41 +253,43 @@ const Card = ({ title, uuid, status, handleDrag, setCards }: CardProps) => {
       <DropIndicator beforeId={uuid} status={status} />
       <motion.div
         layout
-        layoutId={uuid}
+        // layoutId={uuid}
         draggable={!isEditing}
         onDragStart={(e:any) => handleDrag(e, { uuid, title, status })}
-        className="cursor-grab p-3 rounded border border-baseborder bg-baseform/30 active:cursor-grabbing"
+        className="cursor-grab p-3 rounded border border-baseborder bg-baseform/30 active:cursor-grabbing relative"
       >
         <div className="flex items-center justify-between">
           {isEditing ? (
-            <div className="flex items-center gap-2 flex-grow">
+            <>
               <input
                 type="text"
                 value={editedTitle}
                 onChange={(e) => setEditedTitle(e.target.value)}
-                className="bg-baseform text-white text-sm rounded px-2 py-1 flex-grow"
+                className="bg-baseform text-white text-sm rounded px-2 py-1 w-full"
                 autoFocus
               />
-              <button
-                onClick={handleSave}
-                className="text-xs text-white bg-blue-500 px-2 py-1 rounded"
-              >
-                Save
-              </button>
-              <button
-                onClick={handleCancel}
-                className="text-xs text-white bg-gray-500 px-2 py-1 rounded"
-              >
-                Cancel
-              </button>
-            </div>
+              <div className="absolute -right-14 top-0 flex flex-col gap-2 bg-baseform">
+                <button
+                  onClick={handleSave}
+                  className="text-xs text-white bg-blue-500 p-1 rounded whitespace-nowrap"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={handleCancel}
+                  className="text-xs text-white bg-gray-500 p-1 rounded whitespace-nowrap"
+                >
+                  Cancel
+                </button>
+              </div>
+            </>
           ) : (
             <>
               <p className="rounded-lg text-sm text-white">{title}</p>
               <OptionsMenu
                 onEdit={handleEdit}
                 onDelete={() => {
-                  /* implement delete handler */
+                  deleteTaskMutation(uuid);
                 }}
               />
             </>

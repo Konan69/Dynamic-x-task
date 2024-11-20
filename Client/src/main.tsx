@@ -23,7 +23,7 @@ createRoot(document.getElementById("root")!).render(
       <Toaster
         toastOptions={{
           ...toastConfig,
-          className: "toastClass",
+          className: " bg-black text-white ",
           duration: 2500,
           icon: null,
         }}

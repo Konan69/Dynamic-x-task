@@ -1,27 +1,35 @@
-// TODO: Add customize colours
 export const toastConfig = {
   style: {
-    border: "2px solid transparent",
-    padding: "10px",
-    maxWidth: "700px",
-    borderRadius: "5px",
-    boxShadow: "0px 0px 32px -7px rgba(0,0,0,0.1)",
-    fontFamily: "CircularMd",
+    background: "rgb(24 24 27)",
+    color: "#fff",
+    border: "1px solid rgb(39 39 42)",
+    padding: "8px 16px",
+    maxWidth: "300px",
+    borderRadius: "8px",
+    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.2)",
+    backdropFilter: "blur(8px)",
+    fontSize: "14px",
+    fontFamily: "Inter, sans-serif",
+    fontWeight: "500",
   },
   error: {
     style: {
-      color: "#fc686d",
-      opacity: "60%",
+      background: "rgba(239, 68, 68, 0.1)",
+      color: "#fff",
+      border: "1px solid rgb(239, 68, 68)",
     },
   },
   loading: {
     style: {
-      color: "#58AF8A",
+      background: "rgb(24 24 27)",
+      color: "#fff",
     },
   },
   success: {
     style: {
-      color: "#58AF8A",
+      background: "rgba(34, 197, 94, 0.1)",
+      color: "#fff",
+      border: "1px solid rgb(34, 197, 94)",
     },
   },
 };

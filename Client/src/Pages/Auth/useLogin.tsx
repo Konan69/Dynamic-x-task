@@ -4,6 +4,7 @@ import { User } from "@/types";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import useUserStore from "@/store/UserStore";
 
 const isDevelopment = process.env.NODE_ENV === "development";
 
@@ -19,17 +20,17 @@ const useRegisterUser = () => {
     mutationFn: registerUser,
     onSuccess: (data) => {
       toast.success("Login Successful");
-      console.log(data);
       Cookies.set("authToken", data.token, {
         expires: 1, // 1 day
         secure: isDevelopment,
         sameSite: "lax",
       });
+
+      useUserStore.getState().setUser(data.user);
       navigate("/dashboard");
       return data;
     },
     onError: (error: any) => {
-      console.log(error);
       toast.error(
         error.response.data.message || "Login failed, please try again",
       );

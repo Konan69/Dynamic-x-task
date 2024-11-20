@@ -25,7 +25,7 @@ const loginHandler = async (
     throw new UnauthorizedError("Invalid credentials");
   }
   const token = generateToken(findUser.uuid);
-  return res.status(httpStatus.ACCEPTED).json({ token });
+  return res.status(httpStatus.ACCEPTED).json({ token, user: findUser });
 };
 
 export const loginController = errorHandlerWrapper(loginHandler);

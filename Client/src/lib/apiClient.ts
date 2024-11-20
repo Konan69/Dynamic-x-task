@@ -41,7 +41,7 @@ export const getRequest = async (path: string) => {
 
 export const postRequest = async (path: string, data: object) => {
   const url = `${base}/${path}`;
-  console.log(base);
+
   try {
     const response = await axios.post(url, data, config);
     return response.data;
@@ -102,4 +102,21 @@ export const patchAuthRequest = async (path: string, data: object) => {
   } catch (error) {
     throw error;
   }
+};
+
+export const deleteAuthRequest = async (path: string) => {
+	const url = `${base}/${path}`;
+	const AuthConfig = {
+		headers: {
+			"Content-Type": "application/json", 
+			Authorization: `Bearer ${getToken()}`,
+		},
+		credentials: "same-origin",
+	};
+	try {
+		const response = await axios.delete(url, AuthConfig);
+		return response.data;
+	} catch (error) {
+		throw error;
+	}
 };
