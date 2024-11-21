@@ -17,13 +17,14 @@ interface CardProps {
   uuid: string;
   status: string;
   handleDrag: (e: React.DragEvent<HTMLDivElement>, card: Task) => void;
+  handleTouchStart: (e: React.TouchEvent<HTMLDivElement>, card: Task) => void;
   setCards: React.Dispatch<React.SetStateAction<Task[]>>;
 }
 
 export const Todo = () => {
   return (
     <div className="w-full h-full flex flex-col">
-      <div className="p-6 flex flex-col gap-6">
+      <div className="p-4 md:p-6 flex flex-col gap-6">
         <div className="flex justify-end">
           <CreateTask />
         </div>
@@ -48,7 +49,7 @@ const Board = () => {
   }
 
   return (
-    <div className="flex h-full w-full gap-3 overflow-scroll p-12">
+    <div className="flex flex-col md:flex-row h-full w-full gap-3 overflow-x-auto p-4 md:p-12">
       <Status title="To Do" cards={cards} status="Todo" setCards={setCards} />
       <Status title="In Progress" cards={cards} status="In-Progress" setCards={setCards} />
       <Status title="Done" cards={cards} status="Done" setCards={setCards} />
@@ -92,10 +93,67 @@ const Status = ({ title, cards, status, setCards }: StatusProps) => {
     setCards(copy);
   };
 
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>, card: Task) => {
+    const touch = e.touches[0];
+    const element = e.currentTarget as HTMLDivElement;
+    const rect = element.getBoundingClientRect();
+    
+    // Store initial touch position and width
+    const initialX = touch.clientX - rect.left;
+    const initialY = touch.clientY - rect.top;
+    const originalWidth = rect.width;
+    
+    const handleTouchMove = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      element.style.position = 'absolute';
+      element.style.width = `${originalWidth}px`; // Set fixed width so it doesnt shrink while getting dragged
+      element.style.zIndex = '1000';
+      element.style.left = `${touch.clientX - initialX}px`;
+      element.style.top = `${touch.clientY - initialY}px`;
+    };
+    
+    const handleTouchEnd = (e: TouchEvent) => {
+      element.style.position = '';
+      element.style.width = '';
+      element.style.zIndex = '';
+      element.style.left = '';
+      element.style.top = '';
+      
+      const touch = e.changedTouches[0];
+      const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+      const statusColumn = dropTarget?.closest('[data-status]');
+      
+      if (statusColumn) {
+        const newStatus = statusColumn.getAttribute('data-status');
+        if (newStatus && newStatus !== card.status) {
+          updateTaskMutation({
+            uuid: card.uuid,
+            status: newStatus,
+          });
+
+          let copy = [...cards];
+          let cardToTransfer = { ...card, status: newStatus };
+          copy = copy.filter((c) => c.uuid !== card.uuid);
+          copy.push(cardToTransfer);
+          setCards(copy);
+        }
+      }
+      
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+    
+    document.addEventListener('touchmove', handleTouchMove);
+    document.addEventListener('touchend', handleTouchEnd);
+  };
+
   const filteredCards = cards.filter((card) => card.status === status);
 
   return (
-    <div className="w-56 h-fit shrink-0 bg-baseform p-2 rounded-xl border border-baseborder ">
+    <div 
+      className="min-w-[200px] md:min-w-[180px] max-w-full md:w-56 h-fit shrink-0 bg-baseform p-2 rounded-xl border border-baseborder"
+      data-status={status}
+    >
       <div className="mb-3 flex items-center justify-between">
         <h3 className="font-medium text-lg text-white">{title}</h3>
         <span className="px-2 py-1 text-sm text-neutral-400">
@@ -106,7 +164,8 @@ const Status = ({ title, cards, status, setCards }: StatusProps) => {
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`min-h-[100px] w-full transition-colors ${
+        data-status={status}
+        className={`min-h-[60px] w-full transition-colors ${
           isDragOver ? "bg-neutral-800/20" : "bg-neutral-800/0"
         }`}
       >
@@ -115,6 +174,7 @@ const Status = ({ title, cards, status, setCards }: StatusProps) => {
             key={card.uuid}
             {...card}
             handleDrag={handleDrag}
+            handleTouchStart={handleTouchStart}
             setCards={setCards}
           />
         ))}
@@ -123,7 +183,7 @@ const Status = ({ title, cards, status, setCards }: StatusProps) => {
   );
 };
 
-const Card = ({ title, uuid, status, handleDrag }: CardProps) => {
+const Card = ({ title, uuid, status, handleDrag, handleTouchStart, setCards }: CardProps) => {
   const { updateTaskMutation } = useUpdateTask();
   const { deleteTaskMutation } = useDeleteTask();
   const [isEditing, setIsEditing] = useState(false);
@@ -149,6 +209,7 @@ const Card = ({ title, uuid, status, handleDrag }: CardProps) => {
       layout
       draggable={!isEditing}
       onDragStart={(e:any) => handleDrag(e, { uuid, title, status })}
+      onTouchStart={(e) => handleTouchStart(e, { uuid, title, status })}
       className="cursor-grab p-3 mb-2 rounded border border-baseborder bg-baseform/30 active:cursor-grabbing relative"
     >
       <div className="flex items-center justify-between">

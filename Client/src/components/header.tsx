@@ -8,12 +8,12 @@ import { Sidebar } from "@/components/sidebar/"
 export const Header = () => {
   const { user } = useUserStore();
   return (
-    <header className="w-full flex justify-between px-[20px] py-6 items-center border-b border-baseborder">
+    <header className="w-full flex justify-between px-3 md:px-[20px] py-4 md:py-6 items-center border-b border-baseborder">
       <div className="block md:hidden">
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="hover:bg-baseform/30">
-              <Menu className="h-8 w-8 text-white" />
+              <Menu className="h-6 w-6 text-white" />
               <span className="sr-only">Toggle menu</span>
             </Button>
           </SheetTrigger>
@@ -23,9 +23,11 @@ export const Header = () => {
         </Sheet>
       </div>
       <div className="flex-1" />
-      <div className="flex items-center gap-4">
-        <span className="font-medium text-lg text-white">{user?.username}</span>
-        <Avatar>
+      <div className="flex items-center gap-2 md:gap-4">
+        <span className="font-medium text-sm md:text-lg text-white truncate max-w-[120px] md:max-w-none">
+          {user?.username}
+        </span>
+        <Avatar className="h-8 w-8 md:h-10 md:w-10">
           <AvatarImage src="https://github.com/shadcn.png" />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
