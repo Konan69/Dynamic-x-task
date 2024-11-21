@@ -1,11 +1,1 @@
-import { AppDataSource } from '../db';
-
-beforeAll(async () => {
-  // Initialize the test database connection
-  await AppDataSource.initialize();
-});
-
-afterAll(async () => {
-  // Close the database connection after tests
-  await AppDataSource.destroy();
-}); 
+// This file can be deleted as we won't need database connection for unit tests 

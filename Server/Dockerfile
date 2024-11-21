@@ -7,6 +7,7 @@ WORKDIR /app
 
 COPY package.json yarn.lock ./
 
+RUN rm -rf node_modules
 # Install dependencies using Yarn
 RUN yarn install 
 

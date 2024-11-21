@@ -13,6 +13,11 @@ jest.mock('../../utils/password');
 jest.mock('../../utils/generate', () => ({
   generateToken: () => mockToken
 }));
+jest.mock('../../db', () => ({
+  AppDataSource: {
+    getRepository: jest.fn()
+  }
+}));
 
 // Create Express app with error handling middleware
 const app = express();

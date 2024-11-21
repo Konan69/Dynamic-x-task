@@ -3,12 +3,19 @@ import express from 'express';
 import { taskRouter } from '../../routes/taskRouter';
 import { taskService } from '../../services';
 import { mockUser, mockTask, mockToken } from '../utils/mocks';
+import { AppDataSource } from '../../db';
 
 jest.mock('../../services/task.service');
 jest.mock('../../utils/checkAuth', () => ({
   checkAuth: (req, _res, next) => {
     req.user = mockUser;
     next();
+  }
+}));
+
+jest.mock('../../db', () => ({
+  AppDataSource: {
+    getRepository: jest.fn()
   }
 }));
 
