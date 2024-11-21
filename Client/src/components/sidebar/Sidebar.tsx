@@ -1,18 +1,20 @@
 import { Home, Logout, SportX } from "@/assets";
 import toast from "react-hot-toast";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 export const Sidebar = () => {
-  const location = useLocation();
   const nav = useNavigate();
-  const path = location?.pathname;
 
   const handleLogout = () => {
-    // Cookies.remove("ttk");
-    toast.loading("Logging Out");
-    setTimeout(() => {
-      nav(0);
-    }, 1000);
+    try {
+      toast.loading("Logged Out");
+      Cookies.remove("authToken");
+      nav('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      toast.error('Logout failed');
+    }
   };
 
   return (
