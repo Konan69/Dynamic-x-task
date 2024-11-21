@@ -21,11 +21,43 @@ interface CardProps {
   setCards: React.Dispatch<React.SetStateAction<Task[]>>;
 }
 
+const TaskStats = ({ cards }: { cards: Task[] }) => {
+  const totalTasks = cards.length;
+  const completedTasks = cards.filter(card => card.status === "Done").length;
+  const inProgressTasks = cards.filter(card => card.status === "In-Progress").length;
+  const todoTasks = cards.filter(card => card.status === "Todo").length;
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="bg-baseform p-4 rounded-lg border border-baseborder">
+        <h3 className="text-sm text-neutral-400">Total Tasks</h3>
+        <p className="text-2xl font-semibold text-white mt-1">{totalTasks}</p>
+      </div>
+      <div className="bg-baseform p-4 rounded-lg border border-baseborder">
+        <h3 className="text-sm text-neutral-400">Completed</h3>
+        <p className="text-2xl font-semibold text-green-500 mt-1">{completedTasks}</p>
+      </div>
+      <div className="bg-baseform p-4 rounded-lg border border-baseborder">
+        <h3 className="text-sm text-neutral-400">In Progress</h3>
+        <p className="text-2xl font-semibold text-yellow-500 mt-1">{inProgressTasks}</p>
+      </div>
+      <div className="bg-baseform p-4 rounded-lg border border-baseborder">
+        <h3 className="text-sm text-neutral-400">To Do</h3>
+        <p className="text-2xl font-semibold text-blue-500 mt-1">{todoTasks}</p>
+      </div>
+    </div>
+  );
+};
+
 export const Todo = () => {
   return (
     <div className="w-full h-full flex flex-col">
       <div className="p-4 md:p-6 flex flex-col gap-6">
-        <div className="flex justify-end">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Task Board</h1>
+            <p className="text-neutral-400 text-sm mt-1">Manage and organize your tasks</p>
+          </div>
           <CreateTask />
         </div>
       </div>
@@ -49,10 +81,13 @@ const Board = () => {
   }
 
   return (
-    <div className="flex flex-col md:flex-row h-full w-full gap-3 overflow-x-auto p-4 md:p-12">
-      <Status title="To Do" cards={cards} status="Todo" setCards={setCards} />
-      <Status title="In Progress" cards={cards} status="In-Progress" setCards={setCards} />
-      <Status title="Done" cards={cards} status="Done" setCards={setCards} />
+    <div className="flex flex-col h-full w-full p-4 md:p-12">
+      <TaskStats cards={cards} />
+      <div className="flex flex-col md:flex-row w-full gap-3 overflow-x-auto">
+        <Status title="To Do" cards={cards} status="Todo" setCards={setCards} />
+        <Status title="In Progress" cards={cards} status="In-Progress" setCards={setCards} />
+        <Status title="Done" cards={cards} status="Done" setCards={setCards} />
+      </div>
     </div>
   );
 };
@@ -96,23 +131,26 @@ const Status = ({ title, cards, status, setCards }: StatusProps) => {
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>, card: Task) => {
     const touch = e.touches[0];
     const element = e.currentTarget as HTMLDivElement;
-    const rect = element.getBoundingClientRect();
     
-    // Store initial touch position and width
-    const initialX = touch.clientX - rect.left;
-    const initialY = touch.clientY - rect.top;
-    const originalWidth = rect.width;
+    // Calculate offset from the viewport edges instead of element edges
+    const offsetX = touch.clientX - element.getBoundingClientRect().left;
+    const offsetY = touch.clientY - element.getBoundingClientRect().top;
+    const originalWidth = element.getBoundingClientRect().width;
     
     const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault(); // Prevent scrolling while dragging
       const touch = e.touches[0];
-      element.style.position = 'absolute';
-      element.style.width = `${originalWidth}px`; // Set fixed width so it doesnt shrink while getting dragged
+      
+      element.style.position = 'fixed'; // Changed to fixed positioning
+      element.style.width = `${originalWidth}px`;
       element.style.zIndex = '1000';
-      element.style.left = `${touch.clientX - initialX}px`;
-      element.style.top = `${touch.clientY - initialY}px`;
+      // Apply the offset to keep the element aligned with the finger
+      element.style.left = `${touch.clientX - offsetX}px`;
+      element.style.top = `${touch.clientY - offsetY}px`;
     };
     
     const handleTouchEnd = (e: TouchEvent) => {
+      // Reset styles
       element.style.position = '';
       element.style.width = '';
       element.style.zIndex = '';
@@ -143,7 +181,7 @@ const Status = ({ title, cards, status, setCards }: StatusProps) => {
       document.removeEventListener('touchend', handleTouchEnd);
     };
     
-    document.addEventListener('touchmove', handleTouchMove);
+    document.addEventListener('touchmove', handleTouchMove, { passive: false }); // Added passive: false
     document.addEventListener('touchend', handleTouchEnd);
   };
 
