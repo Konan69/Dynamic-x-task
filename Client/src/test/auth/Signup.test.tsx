@@ -17,7 +17,8 @@ describe('Signup Component', () => {
     expect(screen.getByText(/Create account/i)).toBeInTheDocument()
     expect(screen.getByPlaceholderText(/Username/i)).toBeInTheDocument()
     expect(screen.getByPlaceholderText(/Email Address/i)).toBeInTheDocument()
-    expect(screen.getByPlaceholderText(/Confirm Password/i)).toBeInTheDocument()
+    expect(screen.getAllByPlaceholderText(/Password/i)).toHaveLength(2)
+
   })
 
   it('handles form submission with valid data', async () => {
@@ -26,7 +27,8 @@ describe('Signup Component', () => {
 
     await user.type(screen.getByPlaceholderText(/Username/i), 'testuser')
     await user.type(screen.getByPlaceholderText(/Email Address/i), 'test@example.com')
-    await user.type(screen.getByPlaceholderText(/Confirm Password/i), 'Password123!')
+    await user.type(screen.getAllByPlaceholderText(/Password/i)[0], 'Password123!')
+    await user.type(screen.getAllByPlaceholderText(/Password/i)[1], 'Password123!')
     await user.click(screen.getByRole('button', { name: /Submit/i }))
 
   })

@@ -10,6 +10,12 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     include: ['**/*.{test,spec}.{ts,tsx}'],
+    // reporters: ['default'],
+    silent: true,
+    logHeapUsage: false,
+    // outputFile: {
+    //   json: './test-results.json'
+    // }
   },
   resolve: {
     alias: {

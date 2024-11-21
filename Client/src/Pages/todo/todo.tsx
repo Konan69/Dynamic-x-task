@@ -28,19 +28,19 @@ const TaskStats = ({ cards }: { cards: Task[] }) => {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-      <div className="bg-baseform p-4 rounded-lg border border-baseborder">
+      <div className="bg-baseform p-4 rounded-lg border border-baseborder" data-testid="stats-total">
         <h3 className="text-sm text-neutral-400">Total Tasks</h3>
         <p className="text-2xl font-semibold text-white mt-1">{totalTasks}</p>
       </div>
-      <div className="bg-baseform p-4 rounded-lg border border-baseborder">
+      <div className="bg-baseform p-4 rounded-lg border border-baseborder" data-testid="stats-completed">
         <h3 className="text-sm text-neutral-400">Completed</h3>
         <p className="text-2xl font-semibold text-green-500 mt-1">{completedTasks}</p>
       </div>
-      <div className="bg-baseform p-4 rounded-lg border border-baseborder">
+      <div className="bg-baseform p-4 rounded-lg border border-baseborder" data-testid="stats-in-progress">
         <h3 className="text-sm text-neutral-400">In Progress</h3>
         <p className="text-2xl font-semibold text-yellow-500 mt-1">{inProgressTasks}</p>
       </div>
-      <div className="bg-baseform p-4 rounded-lg border border-baseborder">
+      <div className="bg-baseform p-4 rounded-lg border border-baseborder" data-testid="stats-todo">
         <h3 className="text-sm text-neutral-400">To Do</h3>
         <p className="text-2xl font-semibold text-blue-500 mt-1">{todoTasks}</p>
       </div>
@@ -224,6 +224,7 @@ const Status = ({ title, cards, status }: Omit<StatusProps, 'setCards'>) => {
     <div 
       className="min-w-[200px] md:min-w-[180px] max-w-full md:w-56 h-fit shrink-0 bg-baseform p-2 rounded-xl border border-baseborder"
       data-status={status}
+      data-testid={`column-${status}`}
     >
       <div className="mb-3 flex items-center justify-between">
         <h3 className="font-medium text-lg text-white">{title}</h3>
