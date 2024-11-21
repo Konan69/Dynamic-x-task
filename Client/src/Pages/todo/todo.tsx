@@ -1,6 +1,6 @@
 import { CreateTask } from "@/components/Modals";
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { OptionsMenu } from "@/components/Dropdown";
 import { Task } from "@/types";
 import { useDeleteTask, useGetTasks, useUpdateTask} from "./useTodo";
@@ -66,10 +66,21 @@ export const Todo = () => {
 };
 
 const Board = () => {
-  const { data: tasks, isLoading } = useGetTasks();
+  const { data: tasks, isLoading, isError, error } = useGetTasks();
 
   if (isLoading) {
     return <div className="p-12">Loading...</div>;
+  }
+
+  if (isError) {
+    return (
+      <div className="p-12 text-center">
+        <div className="text-red-500 font-medium">Failed to get tasks</div>
+        <div className="text-neutral-400 text-sm mt-2">
+          {error instanceof Error ? error.message : 'Please try again later'}
+        </div>
+      </div>
+    );
   }
 
   return (
