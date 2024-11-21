@@ -288,11 +288,11 @@ const Card = ({ title, uuid, status, handleDrag, handleTouchStart, }: CardProps)
               className="bg-baseform text-white text-sm rounded px-2 py-1 w-full"
               autoFocus
             />
-            <div className="absolute -right-14 top-0 flex flex-col gap-2 bg-baseform">
-              <button onClick={handleSave} className="text-xs text-white bg-blue-500 p-1 rounded">
+            <div className="absolute right-3 top-3 flex flex-col gap-2 bg-baseform rounded-md border border-baseborder shadow-lg p-2">
+              <button onClick={handleSave} className="text-xs text-white bg-blue-500 px-2 py-1 rounded hover:bg-blue-600">
                 Save
               </button>
-              <button onClick={handleCancel} className="text-xs text-white bg-gray-500 p-1 rounded">
+              <button onClick={handleCancel} className="text-xs text-white bg-gray-500 px-2 py-1 rounded hover:bg-gray-600">
                 Cancel
               </button>
             </div>
