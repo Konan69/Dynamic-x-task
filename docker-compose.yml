@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: express
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  server:
+    build: 
+      context: ./Server
+      dockerfile: Dockerfile
+    container_name: express_server
+    depends_on:
+      - mysql
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_TYPE=mysql
+      - DB_HOST=mysql
+      - DB_USERNAME=root
+      - DB_PASSWORD=password
+      - DB_PORT=3306
+      - DB_NAME=express
+      - PORT=8000
+      - SECRET_KEY=express
+      - EXPIRE_TIME=3600
+      - SERVER_ADDRESS=localhost
+      - RESET_URL=/reset_password
+      - NODE_ENV=development
+
+  client:
+    build:
+      context: ./Client
+      dockerfile: Dockerfile
+    container_name: react_client
+    ports:
+      - "5173:5173"
+    depends_on:
+      - server
+    environment:
+      VITE_BASE_URL: http://localhost:8000/api/v1
+      VITE_NODE_ENV: development
+
+volumes:
+  mysql_data: 
