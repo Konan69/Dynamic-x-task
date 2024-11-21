@@ -4,12 +4,12 @@ import { useState, useEffect } from "react";
 import { OptionsMenu } from "@/components/Dropdown";
 import { Task } from "@/types";
 import { useDeleteTask, useGetTasks, useUpdateTask} from "./useTodo";
+import { useQueryClient } from '@tanstack/react-query';
 
 interface StatusProps {
   title: string;
   cards: Task[];
   status: string;
-  setCards: React.Dispatch<React.SetStateAction<Task[]>>;
 }
 
 interface CardProps {
@@ -18,7 +18,6 @@ interface CardProps {
   status: string;
   handleDrag: (e: React.DragEvent<HTMLDivElement>, card: Task) => void;
   handleTouchStart: (e: React.TouchEvent<HTMLDivElement>, card: Task) => void;
-  setCards: React.Dispatch<React.SetStateAction<Task[]>>;
 }
 
 const TaskStats = ({ cards }: { cards: Task[] }) => {
@@ -68,13 +67,6 @@ export const Todo = () => {
 
 const Board = () => {
   const { data: tasks, isLoading } = useGetTasks();
-  const [cards, setCards] = useState<Task[]>([]);
-
-  useEffect(() => {
-    if (tasks) {
-      setCards(tasks);
-    }
-  }, [tasks]);
 
   if (isLoading) {
     return <div className="p-12">Loading...</div>;
@@ -82,17 +74,18 @@ const Board = () => {
 
   return (
     <div className="flex flex-col h-full w-full p-4 md:p-12">
-      <TaskStats cards={cards} />
+      <TaskStats cards={tasks} />
       <div className="flex flex-col md:flex-row w-full gap-3 overflow-x-auto">
-        <Status title="To Do" cards={cards} status="Todo" setCards={setCards} />
-        <Status title="In Progress" cards={cards} status="In-Progress" setCards={setCards} />
-        <Status title="Done" cards={cards} status="Done" setCards={setCards} />
+        <Status title="To Do" cards={tasks} status="Todo" />
+        <Status title="In Progress" cards={tasks} status="In-Progress" />
+        <Status title="Done" cards={tasks} status="Done" />
       </div>
     </div>
   );
 };
 
-const Status = ({ title, cards, status, setCards }: StatusProps) => {
+const Status = ({ title, cards, status }: Omit<StatusProps, 'setCards'>) => {
+  const queryClient = useQueryClient();
   const { updateTaskMutation } = useUpdateTask();
   const [isDragOver, setIsDragOver] = useState(false);
 
@@ -113,19 +106,18 @@ const Status = ({ title, cards, status, setCards }: StatusProps) => {
     setIsDragOver(false);
     const cardId = e.dataTransfer.getData("cardId");
     
+    // Optimistically update the UI
+    queryClient.setQueryData(['tasks'], (oldData: Task[]) => {
+      return oldData.map(task => 
+        task.uuid === cardId ? { ...task, status } : task
+      );
+    });
+
+    // Send update to server
     updateTaskMutation({
       uuid: cardId,
       status: status,
     });
-
-    let copy = [...cards];
-    let cardToTransfer = copy.find((card) => card.uuid === cardId);
-    if (!cardToTransfer) return;
-
-    cardToTransfer = { ...cardToTransfer, status };
-    copy = copy.filter((card) => card.uuid !== cardId);
-    copy.push(cardToTransfer);
-    setCards(copy);
   };
 
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>, card: Task) => {
@@ -192,16 +184,18 @@ const Status = ({ title, cards, status, setCards }: StatusProps) => {
       if (statusColumn) {
         const newStatus = statusColumn.getAttribute('data-status');
         if (newStatus && newStatus !== card.status) {
+          // Optimistically update the UI
+          queryClient.setQueryData(['tasks'], (oldData: Task[]) => {
+            return oldData.map(task => 
+              task.uuid === card.uuid ? { ...task, status: newStatus } : task
+            );
+          });
+
+          // Send update to server
           updateTaskMutation({
             uuid: card.uuid,
             status: newStatus,
           });
-
-          let copy = [...cards];
-          let cardToTransfer = { ...card, status: newStatus };
-          copy = copy.filter((c) => c.uuid !== card.uuid);
-          copy.push(cardToTransfer);
-          setCards(copy);
         }
       }
       
@@ -241,7 +235,6 @@ const Status = ({ title, cards, status, setCards }: StatusProps) => {
             {...card}
             handleDrag={handleDrag}
             handleTouchStart={handleTouchStart}
-            setCards={setCards}
           />
         ))}
       </div>
