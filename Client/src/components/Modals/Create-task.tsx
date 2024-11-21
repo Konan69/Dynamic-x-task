@@ -62,15 +62,15 @@ export const CreateTask = () => {
           Create Task
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] border-baseborder bg-black p-8">
+      <DialogContent className="w-[90%] max-w-[425px] border-baseborder bg-baseform/95 p-4 sm:p-8">
         <DialogHeader>
           <DialogTitle className="text-white text-center">
             Create A New Task
           </DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="title" className="text-right text-white">
+          <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4">
+            <Label htmlFor="title" className="text-left sm:text-right text-white">
               Title
             </Label>
             <Input
@@ -78,15 +78,15 @@ export const CreateTask = () => {
               placeholder="Enter task title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="col-span-3 text-white bg-baseform"
+              className="w-full sm:col-span-3 text-white bg-baseform"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="status" className="text-right text-white">
+          <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4">
+            <Label htmlFor="status" className="text-left sm:text-right text-white">
               Status
             </Label>
             <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger className="col-span-3 text-white bg-baseform">
+              <SelectTrigger className="w-full sm:col-span-3 text-white bg-baseform">
                 <SelectValue>
                   {selectedStatus ? selectedStatus.label : "Select a status"}
                 </SelectValue>

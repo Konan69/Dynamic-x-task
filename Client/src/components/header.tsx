@@ -13,7 +13,7 @@ export const Header = () => {
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="hover:bg-baseform/30">
-              <Menu className="h-6 w-6 text-white" />
+              <Menu className=" w-12 h-12 text-white" />
               <span className="sr-only">Toggle menu</span>
             </Button>
           </SheetTrigger>

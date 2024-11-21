@@ -132,24 +132,52 @@ const Status = ({ title, cards, status, setCards }: StatusProps) => {
     const touch = e.touches[0];
     const element = e.currentTarget as HTMLDivElement;
     
-    // Calculate offset from the viewport edges instead of element edges
     const offsetX = touch.clientX - element.getBoundingClientRect().left;
     const offsetY = touch.clientY - element.getBoundingClientRect().top;
     const originalWidth = element.getBoundingClientRect().width;
     
+    let scrollInterval: NodeJS.Timeout | null = null;
+    
+    const handleScroll = (clientY: number) => {
+      const scrollThreshold = 60; // pixels from top/bottom to trigger scroll
+      const scrollSpeed = 8; // pixels per interval
+      const viewportHeight = window.innerHeight;
+      
+      // Clear any existing scroll interval
+      if (scrollInterval) clearInterval(scrollInterval);
+      
+      if (clientY < scrollThreshold) {
+        // Scroll up when near top
+        scrollInterval = setInterval(() => {
+          window.scrollBy(0, -scrollSpeed);
+        }, 16);
+      } else if (clientY > viewportHeight - scrollThreshold) {
+        // Scroll down when near bottom
+        scrollInterval = setInterval(() => {
+          window.scrollBy(0, scrollSpeed);
+        }, 16);
+      }
+    };
+    
     const handleTouchMove = (e: TouchEvent) => {
-      e.preventDefault(); // Prevent scrolling while dragging
+      e.preventDefault(); // Prevent default scrolling
       const touch = e.touches[0];
       
-      element.style.position = 'fixed'; // Changed to fixed positioning
+      element.style.position = 'fixed';
       element.style.width = `${originalWidth}px`;
       element.style.zIndex = '1000';
-      // Apply the offset to keep the element aligned with the finger
       element.style.left = `${touch.clientX - offsetX}px`;
       element.style.top = `${touch.clientY - offsetY}px`;
+      
+      // Check if we need to scroll
+      handleScroll(touch.clientY);
     };
     
     const handleTouchEnd = (e: TouchEvent) => {
+      if (scrollInterval) {
+        clearInterval(scrollInterval);
+      }
+      
       // Reset styles
       element.style.position = '';
       element.style.width = '';
@@ -181,7 +209,7 @@ const Status = ({ title, cards, status, setCards }: StatusProps) => {
       document.removeEventListener('touchend', handleTouchEnd);
     };
     
-    document.addEventListener('touchmove', handleTouchMove, { passive: false }); // Added passive: false
+    document.addEventListener('touchmove', handleTouchMove, { passive: false }); // Keep passive: false to allow preventDefault
     document.addEventListener('touchend', handleTouchEnd);
   };
 
@@ -221,7 +249,7 @@ const Status = ({ title, cards, status, setCards }: StatusProps) => {
   );
 };
 
-const Card = ({ title, uuid, status, handleDrag, handleTouchStart, setCards }: CardProps) => {
+const Card = ({ title, uuid, status, handleDrag, handleTouchStart, }: CardProps) => {
   const { updateTaskMutation } = useUpdateTask();
   const { deleteTaskMutation } = useDeleteTask();
   const [isEditing, setIsEditing] = useState(false);
